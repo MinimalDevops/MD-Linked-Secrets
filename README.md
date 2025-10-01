@@ -2,6 +2,9 @@
 
 **A powerful environment variable management system for multi-project development**
 
+![Dashboard](images/dashboard.png)
+*Main dashboard showing project overview and quick access to all features*
+
 ## 🚀 Why MD-Linked-Secrets?
 
 ### The Problem
@@ -32,6 +35,9 @@ API_URL=Project1:API_BASE_URL
 DATABASE_URL=Project1:DB_HOST:Project1:DB_PORT
 ```
 
+![Linked Variables](images/vars_in_project_linked_concatenated.png)
+*Variables linked and concatenated across different projects*
+
 ### 🔄 **Smart Concatenation**
 ```bash
 # Combine multiple variables with custom separators
@@ -43,11 +49,17 @@ FULL_URL=Project1:API_BASE_URL|Project1:API_VERSION|Project1:ENDPOINT
 - Track all exports that contain your variables
 - View git repository information (branch, commit, remote) for each export
 
+![Impact Analysis](images/impact_analysis%20_audit_tracing.png)
+*Comprehensive impact analysis showing which projects and exports will be affected by changes*
+
 ### 🎯 **Export Management**
 - Export variables to any directory
 - Track git repository context (branch, commit hash, remote URL)
 - List, filter, and remove tracked exports
 - Detect when exported files need updates
+
+![Export History](images/export_history.png)
+*Export history tracking with git repository information and export status*
 
 ### 🔒 **Security & Privacy**
 - **Show/Hide Values**: Toggle between showing and hiding sensitive values in the UI
@@ -61,16 +73,25 @@ FULL_URL=Project1:API_BASE_URL|Project1:API_VERSION|Project1:ENDPOINT
 - **Bulk Operations**: Import multiple variables at once with custom prefixes
 - **Export Tracking**: Track all exports with git repository context (branch, commit, remote)
 
+![Import Variables](images/import_environment_vars_page.png)
+*Import interface with drag & drop functionality and conflict resolution*
+
 ### 🔍 **Search & Discovery**
 - **Global Search**: Search across all projects, variables, and values from a single search bar
 - **Smart Filtering**: Find variables by name, value, project, or type
 - **Quick Navigation**: Jump directly to any variable or project from search results
+
+![Global Search](images/search.png)
+*Global search functionality across all projects and variables*
 
 ### 📊 **History & Version Control**
 - **Variable History**: Track all changes to variables with timestamps and user information
 - **Configurable History**: Control how much history to keep per project
 - **Rollback Capability**: Revert variables to previous values
 - **Change Tracking**: See exactly what changed between versions
+
+![Variable Versioning](images/vars_versioning_page.png)
+*Variable history and versioning with rollback capabilities*
 
 ## 📁 Project Structure
 
@@ -302,6 +323,9 @@ lsec remove-export --export-id 123
 
 The MD-Linked-Secrets CLI (`lsec`) provides a powerful command-line interface for managing your environment variables. Here's a comprehensive guide:
 
+![CLI Interface](images/cli.png)
+*Command-line interface for managing environment variables and projects*
+
 ### 📋 **Project Management**
 
 #### Create a New Project
@@ -329,6 +353,9 @@ lsec get-project "My Project"
 ```
 
 ### 🔧 **Variable Management**
+
+![Add Variable](images/add_variable.png)
+*Add new variables with different types: raw values, linked variables, or concatenated values*
 
 #### Add Variables
 ```bash
@@ -451,6 +478,9 @@ lsec import --project "My Project" --file ./existing.env --overwrite
 # Import with dry-run (preview what would be imported)
 lsec import --project "My Project" --file ./existing.env --dry-run
 ```
+
+![Conflict Resolution](images/import_vars_conflict_resolution_page.png)
+*Conflict resolution interface when importing variables that already exist*
 
 #### List Imports
 ```bash
@@ -586,6 +616,9 @@ lsec --help
 ## 🌐 Web Interface
 
 Access the web interface at `http://localhost:3000` to:
+
+![Projects Management](images/projects.png)
+*Projects management interface showing all your projects and their details*
 
 ### 🎯 **Core Features**
 - **Manage Projects**: Create, edit, and organize your projects
@@ -948,7 +981,7 @@ which lsec
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -958,5 +991,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Process management with [PM2](https://pm2.keymetrics.io/)
 
 ---
-
-**Made with ❤️ for developers who manage multiple projects**

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import {
   ThemeProvider,
   createTheme,
@@ -11,6 +11,7 @@ import {
   Box,
   CircularProgress,
   Alert,
+  IconButton,
 } from '@mui/material';
 import { Lock as LockIcon } from '@mui/icons-material';
 import { useAppStore } from './store';
@@ -19,6 +20,52 @@ import Projects from './components/Projects';
 import ProjectDetail from './components/ProjectDetail';
 import Exports from './components/Exports';
 import GlobalSearch from './components/GlobalSearch';
+
+// Header component with navigation functionality
+const AppHeader: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleHomeClick = () => {
+    navigate('/');
+  };
+
+  return (
+    <AppBar position="static">
+      <Toolbar>
+        <IconButton
+          edge="start"
+          color="inherit"
+          aria-label="home"
+          onClick={handleHomeClick}
+          sx={{ 
+            mr: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            }
+          }}
+        >
+          <LockIcon />
+          <Typography 
+            variant="h6" 
+            component="div" 
+            sx={{ 
+              flexGrow: 1,
+              cursor: 'pointer',
+              userSelect: 'none'
+            }}
+          >
+            MD-Linked-Secrets
+          </Typography>
+        </IconButton>
+        <Box sx={{ flexGrow: 1 }} />
+        <GlobalSearch />
+      </Toolbar>
+    </AppBar>
+  );
+};
 
 const theme = createTheme({
   palette: {
@@ -51,15 +98,7 @@ function App() {
       <CssBaseline />
       <Router>
         <Box sx={{ flexGrow: 1 }}>
-          <AppBar position="static">
-            <Toolbar>
-              <LockIcon sx={{ mr: 2 }} />
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                MD-Linked-Secrets
-              </Typography>
-              <GlobalSearch />
-            </Toolbar>
-          </AppBar>
+          <AppHeader />
 
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             {error && (
