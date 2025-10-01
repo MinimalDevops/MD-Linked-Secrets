@@ -90,6 +90,9 @@ FULL_URL=Project1:API_BASE_URL|Project1:API_VERSION|Project1:ENDPOINT
 - **Rollback Capability**: Revert variables to previous values
 - **Change Tracking**: See exactly what changed between versions
 
+![Variable History](images/var_history.png)
+*Detailed variable history showing all changes, timestamps, and rollback options*
+
 ![Variable Versioning](images/vars_versioning_page.png)
 *Variable history and versioning with rollback capabilities*
 
