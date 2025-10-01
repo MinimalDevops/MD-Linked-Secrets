@@ -87,9 +87,7 @@ MD-Linked-Secrets/
 ├── cli/                    # Command-line interface
 │   ├── secretool/          # CLI package
 │   └── setup.py            # Installation script
-├── database/               # Database schema files
-│   ├── database_schema.sql
-│   ├── database_schema_simple.sql
+├── database/               # Database migration files
 │   └── add_git_tracking_fields.sql
 ├── scripts/                # Utility scripts
 │   ├── setup_database.py
@@ -127,11 +125,35 @@ pip install -r backend/requirements.txt
 ```
 
 #### Database Setup
+The application uses **SQLAlchemy ORM** to automatically create database tables from Python models. No manual SQL schema files are required.
+
+**Step 1: Configure Environment**
+```bash
+# Copy the example environment file
+cp example.env backend/.env
+
+# Edit the database configuration
+# Update DATABASE_URL in backend/.env with your PostgreSQL credentials:
+# DATABASE_URL=postgresql://username:password@localhost:5432/md_linked_secrets
+```
+
+**Step 2: Create Database**
 ```bash
 # Create PostgreSQL database
 createdb md_linked_secrets
+```
 
-# Run database migrations
+**Step 3: Setup Tables (Choose one option)**
+
+**Option 1: Automatic Setup (Recommended)**
+```bash
+# Use the setup script (handles everything automatically)
+python scripts/setup_database.py
+```
+
+**Option 2: Manual Setup**
+```bash
+# Start the backend (tables are created automatically on first run)
 cd backend
 python -c "
 from app.core.database import engine
@@ -139,14 +161,18 @@ from app.models import Base
 Base.metadata.create_all(bind=engine)
 print('Database tables created successfully!')
 "
+```
 
-# Or use the setup script
-cd ..
-python scripts/setup_database.py
+**Option 3: Let the Application Handle It**
+```bash
+# Start the application - tables are created automatically
+pm2 start ecosystem.config.js
+# or
+python -m uvicorn backend.main:app --reload --port 8088
 ```
 
 #### Database Schema
-The system creates the following tables:
+The system automatically creates the following tables using SQLAlchemy ORM:
 
 - **`projects`**: Store project information
 - **`env_vars`**: Environment variables with linking and concatenation support
@@ -156,10 +182,19 @@ The system creates the following tables:
 - **`variable_history`**: Audit trail for variable changes
 - **`audit_log`**: General audit logging
 
-Database schema files are located in the `database/` directory:
-- `database/database_schema.sql` - Complete database schema
-- `database/database_schema_simple.sql` - Simplified schema
-- `database/add_git_tracking_fields.sql` - Git tracking enhancements
+#### Git Tracking Enhancement
+For enhanced git integration features, run the migration script:
+```bash
+# Apply git tracking enhancements (optional but recommended)
+psql -d md_linked_secrets -f database/add_git_tracking_fields.sql
+```
+
+This adds git tracking fields to the `env_exports` table:
+- `git_repo_path` - Repository root path
+- `git_branch` - Branch name at export time
+- `git_commit_hash` - Commit hash
+- `git_remote_url` - Remote repository URL
+- `is_git_repo` - Whether export was in git repository
 
 #### Start Backend Server
 ```bash
@@ -654,23 +689,41 @@ lsec search "localhost" --search-values true
 ## 🔧 Configuration
 
 ### Environment Variables
-Create a `.env` file in the backend directory (copy from `example.env`):
+**⚠️ IMPORTANT:** You must configure the environment file before setting up the database.
+
+Create a `.env` file in the backend directory:
 
 ```bash
 # Copy the example environment file
 cp example.env backend/.env
+```
 
-# Edit the configuration
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/md_linked_secrets
+**Required Configuration:**
+```bash
+# Edit backend/.env and update these values:
 
-# Security
-SECRET_KEY=your-secret-key-here
-ENCRYPTION_KEY=your-encryption-key-here
+# Database (REQUIRED - must match your PostgreSQL setup)
+DATABASE_URL=postgresql://username:password@localhost:5432/md_linked_secrets
 
-# API
+# Security (REQUIRED - generate your own secure keys)
+SECRET_KEY=your-super-secret-key-here-change-this-in-production
+ENCRYPTION_KEY=your-encryption-key-here-32-characters-long
+
+# API (Optional - defaults shown)
 API_HOST=0.0.0.0
 API_PORT=8088
+```
+
+**Example DATABASE_URL formats:**
+```bash
+# Local PostgreSQL with password
+DATABASE_URL=postgresql://myuser:mypassword@localhost:5432/md_linked_secrets
+
+# Local PostgreSQL without password (trust authentication)
+DATABASE_URL=postgresql://myuser@localhost:5432/md_linked_secrets
+
+# Remote PostgreSQL
+DATABASE_URL=postgresql://myuser:mypassword@db.example.com:5432/md_linked_secrets
 ```
 
 ### PM2 Configuration
@@ -796,6 +849,35 @@ docker-compose up -d
 
 ### Common Issues
 
+#### Environment Configuration Issues
+```bash
+# Check if .env file exists
+ls -la backend/.env
+
+# Verify environment variables are loaded
+cd backend
+python -c "
+from app.core.config import settings
+print(f'Database URL: {settings.database_url}')
+print(f'API Host: {settings.api_host}')
+print(f'API Port: {settings.api_port}')
+"
+
+# Test database connection with your configured URL
+python -c "
+from app.core.database import engine
+from sqlalchemy import text
+import asyncio
+
+async def test_connection():
+    async with engine.begin() as conn:
+        result = await conn.execute(text('SELECT 1'))
+        print('✅ Database connection successful!')
+
+asyncio.run(test_connection())
+"
+```
+
 #### Database Connection Issues
 ```bash
 # Check PostgreSQL is running
@@ -806,6 +888,33 @@ psql -h localhost -U your_user -d md_linked_secrets
 
 # Run validation script
 ./scripts/validate-setup.sh
+
+# Recreate database tables (if needed)
+python scripts/setup_database.py
+
+# Check if git tracking fields exist
+psql -d md_linked_secrets -c "\d env_exports"
+```
+
+#### Database Schema Issues
+If you encounter issues with missing tables or columns:
+
+```bash
+# Option 1: Use the setup script (recommended)
+python scripts/setup_database.py
+
+# Option 2: Manual table recreation
+cd backend
+python -c "
+from app.core.database import engine
+from app.models import Base
+Base.metadata.drop_all(bind=engine)
+Base.metadata.create_all(bind=engine)
+print('Database recreated successfully!')
+"
+
+# Option 3: Apply git tracking migration only
+psql -d md_linked_secrets -f database/add_git_tracking_fields.sql
 ```
 
 #### Port Conflicts
